@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  LEAD
+  EXECUTIVE
+}
+
+enum JobCategory {
+  ENGINEERING
+  DESIGN
+  PRODUCT
+  MARKETING
+  DATA_SCIENCE
+  DEVOPS
+  QA
+  SUPPORT
+  OPERATIONS
+  OTHER
+}
+
+model Job {
+  id              String          @id @default(cuid())
+  title           String
+  slug            String          @unique
+  company         String
+  companyLogo     String?
+  companyWebsite  String?
+  companyOverview String?
+  location        String
+  workMode        WorkMode
+  jobType         JobType
+  experienceLevel ExperienceLevel
+  salaryMin       Int?
+  salaryMax       Int?
+  currency        String          @default("USD")
+  description     String
+  responsibilities String[]
+  requirements    String[]
+  benefits        String[]
+  skills          String[]
+  category        JobCategory
+  isFeatured      Boolean         @default(false)
+  isPublished     Boolean         @default(true)
+  applyUrl        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  applications JobApplication[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([workMode])
+  @@index([jobType])
+  @@index([experienceLevel])
+  @@index([isFeatured])
+  @@index([createdAt(sort: Desc)])
+}
+
+model JobApplication {
+  id           String   @id @default(cuid())
+  jobId        String
+  fullName     String
+  email        String
+  phone        String?
+  portfolioUrl String?
+  resumeUrl    String?
+  coverLetter  String?
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([email])
+}
